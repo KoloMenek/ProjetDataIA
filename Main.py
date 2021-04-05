@@ -5,6 +5,11 @@ theBoard = [
 ]
 
 boardStates = []
+scores = {
+	'X': 10,
+	'O': -10,
+	'tie': 0
+}
 
 def printBoard():
 	affichage = "  ─   ─   ─\n"
@@ -62,37 +67,83 @@ def gameState(theBoard, joueur):
 		gameNotFinished = True
 	return gameNotFinished
 
-def minimax(theBoard, isMaximisingPlayer, joueur):
-	isGameFinished = gameState(theBoard, joueur)
-	if isGameFinished:
-		return True
+def minimax(board, isMaximazing):
+	result = checkWinner()
+	if result != None:
+		return scores[result]
+
+	if isMaximazing:
+		bestScore = -2
+		for i in range(0,3):
+			for j in range(0,3):
+				#Is the spot available?
+				if board[i][j] == '-':
+					board[i][j] = 'X'
+					score = minimax(board, False)
+					board[i][j] = '-'
+					bestScore = max(score, bestScore)
+		return bestScore
+    
+	else:
+		bestScore = 2
+		for i in range(0,3):
+			for j in range(0,3):
+				#Is the spot available?
+				if board[i][j] == '-':
+					board[i][j] = 'O'
+					score = minimax(board, True)
+					board[i][j] = '-'
+					bestScore = min(score, bestScore)
+		return bestScore
+
+def bestMove():
+	#AI to make its turn
+	move = (0,0)
+	bestScore = -2
+	for i in range(0,3):
+		for j in range(0,3):
+		#Is the spot available?
+			if theBoard[i][j] == '-':
+				score = minimax(theBoard, False)
+				theBoard[i][j] = '-'
+				if score > bestScore:
+					bestScore = score
+					move = (i,j)
+	movei, movej = move
+	theBoard[movei][movej] = 'O'
+
 
 
 
 def equals3(a, b, c):
     return a == b and b == c and a != '-'
 
-def checkWinner(): # Utility
-    winner = None
-    
-    # Ligne
-    for i in range(3):
-        if (equals3(theBoard[i][0], theBoard[i][1], theBoard[i][2])):
-            winner = theBoard[i][0]
-    # Colonne
-    for i in range(3):
-        if (equals3(theBoard[0][i], theBoard[1][i], theBoard[2][i])): 
-            winner = theBoard[0][i]
-    
-    # Diagonale /
-    if (equals3(theBoard[0][0], theBoard[1][1], theBoard[2][2])):
-        winner = theBoard[0][0] 
-    
-    # Diagonale \
-    if (equals3(theBoard[2][0], theBoard[1][1], theBoard[0][2])):
-        winner = theBoard[2][0]
+def checkWinner(): # Utility, pas d'état en paramètres car état est une variable globale
+	winner = None
 
-    return winner
+	# Ligne
+	for i in range(3):
+		if (equals3(theBoard[i][0], theBoard[i][1], theBoard[i][2])):
+			winner = theBoard[i][0]
+	# Colonne
+	for i in range(3):
+		if (equals3(theBoard[0][i], theBoard[1][i], theBoard[2][i])): 
+			winner = theBoard[0][i]
+
+	# Diagonale /
+	if (equals3(theBoard[0][0], theBoard[1][1], theBoard[2][2])):
+		winner = theBoard[0][0] 
+
+	# Diagonale \
+	if (equals3(theBoard[2][0], theBoard[1][1], theBoard[0][2])):
+		winner = theBoard[2][0]
+
+	if winner == "X":
+		print("Joueur gagne")
+	else:
+		print("IA gagne")
+
+	return winner
 
 
 
@@ -108,9 +159,9 @@ def TicTacToe():
 			printBoard()
 
 			isPositionOkay = True
-			if joueur == 'X':
-				while isPositionOkay:
-					#Joueur choisi sa position
+
+			while isPositionOkay:
+				if(joueur == 'X'): # Joueur
 					userInput = input("Veuillez selectionner une position i,j (entre 1 et 3) pour valider votre tour !\n")
 					if ',' in userInput:
 						moveI = int(userInput.split(',')[0])
@@ -119,12 +170,11 @@ def TicTacToe():
 							moveI, moveJ = moveI -1, moveJ -1
 							if theBoard[moveI][moveJ] == '-':
 								isPositionOkay = False
-				theBoard[moveI][moveJ] = joueur
-				compteur += 1
-				gameFinished = gameState(theBoard,joueur)
-
-			else:
-				gameFinished = minimax(theBoard, True, joueur)
+					theBoard[moveI][moveJ] = joueur
+					compteur += 1
+					gameFinished = gameState(theBoard,joueur)
+				else: # IA
+					bestMove()
 
 			if joueur == 'X':
 				joueur = 'O'
