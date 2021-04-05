@@ -73,24 +73,24 @@ def minimax(board, isMaximazing):
 		return scores[result]
 
 	if isMaximazing:
-		bestScore = -2
+		bestScore = -999999
 		for i in range(0,3):
 			for j in range(0,3):
 				#Is the spot available?
 				if board[i][j] == '-':
-					board[i][j] = 'X'
+					board[i][j] = 'O'
 					score = minimax(board, False)
 					board[i][j] = '-'
 					bestScore = max(score, bestScore)
 		return bestScore
     
 	else:
-		bestScore = 2
+		bestScore = 999999
 		for i in range(0,3):
 			for j in range(0,3):
 				#Is the spot available?
 				if board[i][j] == '-':
-					board[i][j] = 'O'
+					board[i][j] = 'X'
 					score = minimax(board, True)
 					board[i][j] = '-'
 					bestScore = min(score, bestScore)
@@ -99,18 +99,19 @@ def minimax(board, isMaximazing):
 def bestMove():
 	#AI to make its turn
 	move = (0,0)
-	bestScore = -2
+	bestScore = -999999
 	for i in range(0,3):
 		for j in range(0,3):
 		#Is the spot available?
 			if theBoard[i][j] == '-':
+				theBoard[i][j] = 'O'
 				score = minimax(theBoard, False)
 				theBoard[i][j] = '-'
 				if score > bestScore:
 					bestScore = score
 					move = (i,j)
-	movei, movej = move
-	theBoard[movei][movej] = 'O'
+	theBoard[move[0]][move[1]] = 'O'
+
 
 
 
