@@ -69,7 +69,30 @@ def minimax(theBoard, isMaximisingPlayer, joueur):
 
 
 
+def equals3(a, b, c):
+    return a == b and b == c and a != '-'
 
+def checkWinner(): # Utility
+    winner = None
+    
+    # Ligne
+    for i in range(3):
+        if (equals3(theBoard[i][0], theBoard[i][1], theBoard[i][2])):
+            winner = theBoard[i][0]
+    # Colonne
+    for i in range(3):
+        if (equals3(theBoard[0][i], theBoard[1][i], theBoard[2][i])): 
+            winner = theBoard[0][i]
+    
+    # Diagonale /
+    if (equals3(theBoard[0][0], theBoard[1][1], theBoard[2][2])):
+        winner = theBoard[0][0] 
+    
+    # Diagonale \
+    if (equals3(theBoard[2][0], theBoard[1][1], theBoard[0][2])):
+        winner = theBoard[2][0]
+
+    return winner
 
 
 
