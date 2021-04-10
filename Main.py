@@ -6,8 +6,8 @@ theBoard = [
 
 boardStates = []
 scores = {
-	'X': 10,
-	'O': -10,
+	'X': -1,
+	'O': 1,
 	'Tie': 0
 }
 
@@ -147,13 +147,16 @@ def checkWinner(): # Utility, pas d'état en paramètres car état est une varia
 
 	# Debug
 	if winner == "X":
-		print("Joueur gagne")
+		pass
+		#print("Joueur gagne")
 	elif winner == "O":
-		print("IA gagne")
-	else:
-		print("Tie")
+		pass
+		#print("IA gagne")
+	elif(not canPlay() and winner == None):
+		winner = "Tie"
+		#print("Tie")
 
-	return winner if winner == None and emptySlots == 0 else "Tie"
+	return winner
 
 
 
@@ -166,12 +169,13 @@ def TicTacToe():
 
 		while not gameFinished:
 			print(f"Tour {compteur} Joueur: {joueur}")
-			printBoard()
+			#printBoard()
 
 			isPositionOkay = True
 
 			while isPositionOkay:
 				if(joueur == 'X'): # Joueur
+					printBoard()
 					userInput = input("Veuillez selectionner une position i,j (entre 1 et 3) pour valider votre tour !\n")
 					if ',' in userInput:
 						moveI = int(userInput.split(',')[0])
@@ -184,6 +188,7 @@ def TicTacToe():
 						compteur += 1
 						gameFinished = gameState(theBoard,joueur)
 				else: # IA
+					printBoard()
 					bestMove()
 
 				if joueur == 'X':
