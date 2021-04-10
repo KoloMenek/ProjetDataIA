@@ -10,6 +10,10 @@ scores = {
 	'O': 1,
 	'Tie': 0
 }
+def reset():
+	for i in range(3):
+		for j in range(3):
+			theBoard[i][j] = "-"
 
 def printBoard():
 	affichage = "  ─   ─   ─\n"
@@ -173,8 +177,8 @@ def TicTacToe():
 
 			isPositionOkay = True
 
-			while isPositionOkay:
-				if(joueur == 'X'): # Joueur
+			if(joueur == 'X'): # Joueur
+				while isPositionOkay:
 					printBoard()
 					userInput = input("Veuillez selectionner une position i,j (entre 1 et 3) pour valider votre tour !\n")
 					if ',' in userInput:
@@ -184,23 +188,28 @@ def TicTacToe():
 							moveI, moveJ = moveI -1, moveJ -1
 							if theBoard[moveI][moveJ] == '-':
 								isPositionOkay = False
-						theBoard[moveI][moveJ] = joueur
-						compteur += 1
-						gameFinished = gameState(theBoard,joueur)
-				else: # IA
-					printBoard()
-					bestMove()
+						if(not isPositionOkay):
+							theBoard[moveI][moveJ] = joueur
+							compteur += 1
+							gameFinished = gameState(theBoard,joueur)
+						else:
+							print("Position déjà prise")
+			else: # IA
+				printBoard()
+				bestMove()
+				gameFinished = gameState(theBoard,joueur)
 
-				if joueur == 'X':
-					joueur = 'O'
-				else:
-					joueur = 'X'
+			if joueur == 'X':
+				joueur = 'O'
+			else:
+				joueur = 'X'
 		goodInput = True
 		while goodInput:
 			restart = input("Voulez-vous rejouer ? [O/N]\n")
 			if restart.upper() in ['O','N']:
 				if restart == 'O':
 					goodInput = False
+					reset()
 				else:
 					goodInput = False
 					wannaPlay = False
