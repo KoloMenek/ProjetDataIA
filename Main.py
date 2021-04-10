@@ -186,10 +186,10 @@ def TicTacToe():
 				else: # IA
 					bestMove()
 
-			if joueur == 'X':
-				joueur = 'O'
-			else:
-				joueur = 'X'
+				if joueur == 'X':
+					joueur = 'O'
+				else:
+					joueur = 'X'
 		goodInput = True
 		while goodInput:
 			restart = input("Voulez-vous rejouer ? [O/N]\n")
