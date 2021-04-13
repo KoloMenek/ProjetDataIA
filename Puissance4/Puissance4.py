@@ -1,7 +1,10 @@
 import numpy as np
 
+nb_lignes = 6
+nb_colonnes = 12
+
 values = {0:'Vide', 1:'Bleu', 2: 'Rouge'}
-theBoard = np.zeros((6,12),dtype=int)
+theBoard = np.zeros((nb_lignes,nb_colonnes),dtype=int)
 
 def printBoard():
     affichage = "  ─   ─   ─   ─   ─   ─   ─   ─   ─   ─   ─   ─\n"
@@ -22,9 +25,89 @@ def getLastFreeCase(colonne):
             return i
     return -1
 
-def checkWinningConditions(ligne, colonne, compteur):
-    if compteur == 42:
-        print("---TIE---")
+# Le principe est qu'on vérifie le conformité de la pièce du joueur avec celle suivante
+# suivant l'axe, si on trouve une pièce adverse on s'arrete, sinon on incrémente le compteur
+def checkWinningConditions(ligne,colonne,compteur,joueur):
+    if(compteur==42):
+        print("__TIE__")
+        return None
+    victory = 4
+    
+    # Ligne -
+    cpt_ligne = 1
+    for i in range(ligne+1,nb_colonnes): # out of range
+        print("ligne:",i,"colonne:",colonne)
+        if theBoard[i][colonne] == joueur:
+            cpt_ligne+=1
+        else:
+            break
+    for i in range(ligne-1,0,-1):
+        if theBoard[i][colonne] == joueur:
+            cpt_ligne+=1
+        else:
+            break
+    
+    # Colonne |
+    cpt_colonne = 1
+    for i in range(colonne+1,nb_lignes):
+        if theBoard[ligne][i] == joueur:
+            cpt_colonne+=1
+        else:
+            break
+    for i in range(colonne-1,0,-1):
+        if theBoard[ligne][i] == joueur:
+            cpt_colonne+=1
+        else:
+            break   
+        
+    # Diagonale ascendante /
+    cpt_diagAsc = 1
+    cptLoopAsc_1 = 1
+    cptLoopAsc_2 = 1
+    for i in range(colonne+1,nb_colonnes):
+        # On dépasse le board (supérieur)
+        if(ligne-cptLoopAsc_1 < 0):
+            break
+        if theBoard[ligne-cptLoopAsc_1][i] == joueur:
+            cpt_diagAsc+=1
+        else:
+            break
+        cptLoopAsc_1+=1
+        
+    for i in range(colonne-1,0,-1):
+        # On dépasse le board (inférieur)
+        if(ligne+cptLoopAsc_2 > nb_lignes-1):
+            break
+        if theBoard[ligne+cptLoopAsc_2][i] == joueur:
+            cpt_diagAsc+=1
+        else:
+            break   
+        cptLoopAsc_2+=1
+    
+    #diagonale descendante \ 
+    cpt_diagDesc = 1
+    cptLoopDesc_1 = 1
+    cptLoopDesc_2 = 1
+    for i in range(colonne+1,nb_colonnes):
+        # On dépasse le board (supérieur)
+        if(ligne-cptLoopDesc_1 < 0):
+            break
+        if theBoard[ligne-cptLoopDesc_1][i] == joueur:
+            cpt_colonne+=1
+        else:
+            break
+        cptLoopDesc_1+=1
+    for i in range(0,colonne):
+        # On dépasse le board (inférieur)
+        if(ligne+cptLoopDesc_2 > nb_lignes-1):
+            break
+        if theBoard[ligne+cptLoopDesc_2][i] == joueur:
+            cpt_colonne+=1
+        else:
+            break  
+        cptLoopDesc_1+=1
+        
+    if cpt_colonne >= victory or cpt_ligne >= victory or cpt_diagAsc >= victory or cpt_diagDesc >= victory:
         return True
     else:
         return False
@@ -45,7 +128,7 @@ def gameLoop():
                     ligne = getLastFreeCase(colonne)
                     theBoard[ligne][colonne] = joueur
                     compteur += 1
-                    gameNotFinished = checkWinningConditions(ligne, colonne, compteur)
+                    gameNotFinished = checkWinningConditions(ligne, colonne, compteur,joueur)
                     isPositionNotOkay = False
                 else:
                     print("La case choisi n'est pas valide !")
