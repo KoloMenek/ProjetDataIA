@@ -35,27 +35,38 @@ def checkWinningConditions(ligne,colonne,compteur,joueur):
     
     # Ligne -
     cpt_ligne = 1
-    for i in range(ligne+1,nb_colonnes): # out of range
-        print("ligne:",i,"colonne:",colonne)
-        if theBoard[i][colonne] == joueur:
+    print("111111111111111111&")
+    for i in range(colonne+1,nb_colonnes): # out of range
+        print("Première boucle")
+        print(" (1) i : ",i)
+        if theBoard[ligne][i] == joueur:
+            print("++ ligne")
             cpt_ligne+=1
         else:
+            print("break")
             break
-    for i in range(ligne-1,0,-1):
-        if theBoard[i][colonne] == joueur:
+    print("222222222222222222é")
+    for i in range(colonne-1,-1,-1):
+        print("Deuxième boucle")
+        print(" (2) i : ",i)
+        if theBoard[ligne][i] == joueur:
+            print("++ ligne 2")
             cpt_ligne+=1
         else:
+            print("break 2")
             break
     
     # Colonne |
     cpt_colonne = 1
-    for i in range(colonne+1,nb_lignes):
-        if theBoard[ligne][i] == joueur:
+    for i in range(ligne+1,nb_lignes):
+        if theBoard[i][colonne] == joueur:
+            print("++ colonne")
             cpt_colonne+=1
         else:
             break
-    for i in range(colonne-1,0,-1):
-        if theBoard[ligne][i] == joueur:
+    for i in range(ligne-1,-1,-1):
+        if theBoard[i][colonne] == joueur:
+            print("++ colonne 2")
             cpt_colonne+=1
         else:
             break   
@@ -74,7 +85,7 @@ def checkWinningConditions(ligne,colonne,compteur,joueur):
             break
         cptLoopAsc_1+=1
         
-    for i in range(colonne-1,0,-1):
+    for i in range(colonne-1,-1,-1):
         # On dépasse le board (inférieur)
         if(ligne+cptLoopAsc_2 > nb_lignes-1):
             break
@@ -93,7 +104,7 @@ def checkWinningConditions(ligne,colonne,compteur,joueur):
         if(ligne-cptLoopDesc_1 < 0):
             break
         if theBoard[ligne-cptLoopDesc_1][i] == joueur:
-            cpt_colonne+=1
+            cpt_diagDesc+=1
         else:
             break
         cptLoopDesc_1+=1
@@ -102,11 +113,11 @@ def checkWinningConditions(ligne,colonne,compteur,joueur):
         if(ligne+cptLoopDesc_2 > nb_lignes-1):
             break
         if theBoard[ligne+cptLoopDesc_2][i] == joueur:
-            cpt_colonne+=1
+            cpt_diagDesc+=1
         else:
             break  
         cptLoopDesc_1+=1
-        
+    print("cpt_colonne:",cpt_colonne, "cpt_ligne:",cpt_ligne,"cpt_diagDesc:",cpt_diagDesc,'cpt_diagAsc:',cpt_diagAsc)
     if cpt_colonne >= victory or cpt_ligne >= victory or cpt_diagAsc >= victory or cpt_diagDesc >= victory:
         return True
     else:
@@ -139,6 +150,9 @@ def gameLoop():
             joueur = 2
         else:
             joueur = 1
+        if gameNotFinished is None:
+            print("Egalité")
+            break
 
 if __name__ == "__main__":
     gameLoop()
