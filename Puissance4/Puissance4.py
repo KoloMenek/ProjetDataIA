@@ -26,6 +26,10 @@ def getLastFreeCase(colonne):
     return -1
 
 
+def heuristique():
+    boardHeuri = np.zeros((nb_lignes,nb_colonnes),dtype=int)
+
+
 def parcours(ligne,colonne,Vx,Vy,joueur):
     cpt = 0   
     while True:
@@ -41,10 +45,10 @@ def parcours(ligne,colonne,Vx,Vy,joueur):
     return cpt
 
 # Le principe est qu'on vérifie le conformité de la pièce du joueur avec celle suivante
-# suivant l'axe, si on trouve une pièce adverse on s'arrete, sinon on incrémente le compteur
+# suivant l'axe, si on trouve une pièce adverse on s'arrete et on passe à l'autre axe, sinon on incrémente le compteur
 def checkWinningConditions(ligne,colonne,compteur,joueur):
     winning = False
-    if(compteur==42):
+    if(compteur==72):
         print("__TIE__")
         winning = None
     victory = 4
