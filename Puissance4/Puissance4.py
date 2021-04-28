@@ -26,9 +26,90 @@ def getLastFreeCase(colonne):
     return -1
 
 
-def heuristique():
-    boardHeuri = np.zeros((nb_lignes,nb_colonnes),dtype=int)
+def heuristique(ligne,colonne,joueur):
+    '''exemple d'heuristique : calcule le nombre d'endoit où le joueur peut gagner moins le nombre d'endroits où l'adversaire peut gagner '''
+    heur = 0
+    #teste toutes les possibilités en lignes
+    i = ligne
+    j = colonne
+    if((ligne > nb_lignes-1 or ligne < 0) or (colonne > nb_colonnes-1 or colonne < 0)):
+        return 
+    else:
+        for i in range(6):
+            for j in range(9):
+                if theBoard[i][j] != 1 and theBoard[i][j+1] != 1 and theBoard[i][j+2] != 1 and theBoard[i][j+3] != 1:
+                    heur +=1
+                if theBoard[i][j] != 2 and theBoard[i][j+1] != 2 and theBoard[i][j+2] != 2 and theBoard[i][j+3] != 2:
+                    heur -=1
+    
+    
+        #teste toutes les possibilités en colonnes
+        for j in range(12):
+            for i in range(3):
+                if theBoard[i][j] != 1 and theBoard[i+1][j] != 1 and theBoard[i+2][j] != 1 and theBoard[i+3][j] != 1:
+                    heur +=1
+                if theBoard[i][j] != 2 and theBoard[i+1][j] != 2 and theBoard[i+2][j] != 2 and theBoard[i+3][j] != 2:
+                    heur -=1
+    
+        #teste toutes les possibilités en diagonales montantes / et descendantes \
+        for i in range(3):
+            for j in range(9):
+                if theBoard[i][j] != 1 and theBoard[i+1][j+1] != 1 and theBoard[i+2][j+2] != 1 and theBoard[i+3][j+3] != 1:
+                    heur +=1
+                if theBoard[i+3][j] != 1 and theBoard[i+2][j+1] != 1 and theBoard[i+1][j+2] != 1 and theBoard[i][j+3] != 1:
+                    heur +=1
+                if theBoard[i][j] != 2 and theBoard[i+1][j+1] != 2 and theBoard[i+2][j+2] != 2 and theBoard[i+3][j+3] != 2:
+                    heur -=1
+                if theBoard[i+3][j] != 2 and theBoard[i+2][j+1] != 2 and theBoard[i+1][j+2] != 2 and theBoard[i][j+3] != 2:
+                    heur -=1
 
+    return heur
+
+def minmax(board,alpha,beta, profondeur, isMaximazing,joueur):
+    gameNotFinished = checkWinningConditions(ligne, colonne, compteur,joueur)
+    if (profondeur == 0):
+        return scores[result]
+
+    if isMaximazing:       
+        bestScore = 999999
+        for colonne in np.arange(0,12):
+            if canPlay(colonne):
+                ligne = getLastFreeCase(colonne)
+                theBoard[ligne][colonne] = joueur
+                score = minmax(theBoard,np.NINF,np.Inf, 4 ,False)
+                theBoard[ligne][colonne] = 0
+                if score > bestScore:
+                    bestScore = score
+                    move = (ligne,colonne)
+        return bestScore
+    
+    else:
+        bestScore = 999999
+        for colonne in np.arange(0,12):
+            if canPlay(colonne):
+                ligne = getLastFreeCase(colonne)
+                theBoard[ligne][colonne] = joueur
+                score = minmax(theBoard,np.NINF,np.Inf, 4 ,False)
+                theBoard[ligne][colonne] = 0
+                if score > bestScore:
+                    bestScore = score
+                    move = (ligne,colonne)
+        return bestScore
+
+def bestMove(joueur):
+	#AI to make its turn
+    move = (0,0)
+    bestScore = np.NINF
+    for colonne in np.arange(0,12):
+        if canPlay(colonne):
+            ligne = getLastFreeCase(colonne)
+            theBoard[ligne][colonne] = joueur
+            score = minmax(theBoard,np.NINF,np.Inf, 4 ,False)
+            theBoard[ligne][colonne] = 0
+            if score > bestScore:
+                bestScore = score
+                move = (ligne,colonne)
+    theBoard[move[0]][move[1]] = joueur
 
 def parcours(ligne,colonne,Vx,Vy,joueur):
     cpt = 0   
@@ -160,7 +241,9 @@ def checkWinningConditions(ligne,colonne,compteur,joueur):
     else:
         return False
     """
-def gameLoop():
+
+
+def PvP():
     compteur = 1
     joueur = 1
     gameNotFinished = False
@@ -196,6 +279,80 @@ def gameLoop():
             joueur = 2
         else:
             joueur = 1
+def PvIA():
+    print("Qui commence ? (1 : Moi, 2 : IA)")
+    playingFirst = False
+    gameChoiceIA = None
+    while not playingFirst:
+        gameChoiceIA = input("Qui commence ? (1 : Moi, 2 : IA)")
+        if gameChoiceIA in ["1","2"]:
+            playingFirst = True
+        else:
+            print("Choix inconnu")  
+    compteur = 1
+    joueur = int(gameChoiceIA)
+    gameNotFinished = False
+    while not gameNotFinished:
+        isPositionNotOkay = True
+        print(f"Tour: {compteur} Joueur: {joueur}")
+        printBoard()
+        if(joueur == 1):
+            while isPositionNotOkay:
+                userInput = input("Veuillez selectionner une colonne entre 1 et 12 pour valider votre tour:\n")
+                colonne = int(userInput) - 1
+                if colonne in np.arange(0,12):
+                    if canPlay(colonne):
+                        ligne = getLastFreeCase(colonne)
+                        theBoard[ligne][colonne] = joueur
+                        compteur += 1
+                        gameNotFinished = checkWinningConditions(ligne, colonne, compteur,joueur)
+                        isPositionNotOkay = False
+                    else:
+                        print("Il n'est pas possible de jouer là !")
+                else:
+                    print("Case hors du plateau !")
+        else:
+            printBoard(joueur)
+            bestMove()
+            compteur += 1
+            gameNotFinished = checkWinningConditions(ligne, colonne, compteur,joueur)
+
+
+        if gameNotFinished is True:
+            printBoard()
+            print(f"Le joueur {joueur} gagne !")
+            break
+        elif gameNotFinished is None:
+            print("Egalité...")
+            break
+        
+        if joueur == 1:
+            joueur = 2
+        else:
+            joueur = 1
+    pass
+def IAvIA():
+    pass
+    
+def gameLoop():
+    hasChosen = False
+    gameChoice = None
+    while not hasChosen:
+        gameChoice = input("Sélectionnez le mode de jeu : \n 1) Player versus Player \n 2) Player versus IA \n 3) IA versus IA \n")
+        if gameChoice in ["1","2","3"]:
+            hasChosen = True
+        else:
+            print("Choix inconnu")  
+    if(gameChoice == "1"):
+        print("Choix 1 : Joueur contre Joueur")
+        PvP()
+    elif(gameChoice == "2"):
+        print("Choix 3 : Joueur contre IA")
+        PvIA()
+    elif(gameChoice== "3"):
+        print("Choix 3 : IA contre IA")
+        IAvIA()
+  
 
 if __name__ == "__main__":
     gameLoop()
