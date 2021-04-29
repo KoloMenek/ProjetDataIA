@@ -27,7 +27,7 @@ def getLastFreeCase(colonne):
 
 
 def heuristique(ligne,colonne,joueur):
-    '''exemple d'heuristique : calcule le nombre d'endoit où le joueur peut gagner moins le nombre d'endroits où l'adversaire peut gagner '''
+    '''exemple d'heuristique : calcule le nombre d'endroit où le joueur peut gagner moins le nombre d'endroits où l'adversaire peut gagner '''
     heur = 0
     #teste toutes les possibilités en lignes
     i = ligne
@@ -330,8 +330,6 @@ def PvIA():
             joueur = 2
         else:
             joueur = 1
-    pass
-def IAvIA():
     pass
     
 def gameLoop():
