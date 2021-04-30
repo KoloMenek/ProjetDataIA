@@ -274,13 +274,17 @@ def PvP():
         elif gameNotFinished is None:
             print("Egalité")
             break
-        
+        # Afin de stopper le jeu après que les 42 pièces soit posés
+        elif compteur>42:
+            printBoard()
+            print("Egalité")
+            break
         if joueur == 1:
             joueur = 2
         else:
             joueur = 1
 def PvIA():
-    print("Qui commence ? (1 : Moi, 2 : IA)")
+    # print("Qui commence ? (1 : Moi, 2 : IA)")
     playingFirst = False
     gameChoiceIA = None
     while not playingFirst:
@@ -312,8 +316,8 @@ def PvIA():
                 else:
                     print("Case hors du plateau !")
         else:
-            printBoard(joueur)
-            bestMove()
+            printBoard()
+            bestMove(joueur)
             compteur += 1
             gameNotFinished = checkWinningConditions(ligne, colonne, compteur,joueur)
 
@@ -324,6 +328,11 @@ def PvIA():
             break
         elif gameNotFinished is None:
             print("Egalité...")
+            break
+        # Afin de stopper le jeu après que les 42 pièces soit posés
+        elif compteur>42:
+            printBoard()
+            print("Egalité")
             break
         
         if joueur == 1:
@@ -336,8 +345,8 @@ def gameLoop():
     hasChosen = False
     gameChoice = None
     while not hasChosen:
-        gameChoice = input("Sélectionnez le mode de jeu : \n 1) Player versus Player \n 2) Player versus IA \n 3) IA versus IA \n")
-        if gameChoice in ["1","2","3"]:
+        gameChoice = input("Sélectionnez le mode de jeu : \n 1) Player versus Player \n 2) Player versus IA \n")
+        if gameChoice in ["1","2"]:
             hasChosen = True
         else:
             print("Choix inconnu")  
@@ -347,9 +356,6 @@ def gameLoop():
     elif(gameChoice == "2"):
         print("Choix 3 : Joueur contre IA")
         PvIA()
-    elif(gameChoice== "3"):
-        print("Choix 3 : IA contre IA")
-        IAvIA()
   
 
 if __name__ == "__main__":
