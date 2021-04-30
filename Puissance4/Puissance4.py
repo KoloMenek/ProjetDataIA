@@ -101,7 +101,7 @@ def turnAI():
         if canPlay(colonne):
             ligne = getLastFreeCase(colonne)
             theBoard[ligne][colonne] = 2
-            score = minmax(theBoard,np.NINF,np.Inf, 2 ,False,ligne,colonne,1)
+            score = minmax(theBoard,np.NINF,np.Inf, 1 ,False,ligne,colonne,1)
             theBoard[ligne][colonne] = 0
             if score > bestScore:
                 bestScore = score
