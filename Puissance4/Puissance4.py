@@ -60,9 +60,73 @@ def heuristique():
                 heur -=1
     return heur
 
+def heuristiquebis():
+        '''Heuristique un peu plus complexe'''
+        somme = 0
+        # colonnes
+        for j in range(12):  #colonnes
+            for i in range(3):  #lignes
+                zone =[theBoard[i][j], theBoard[i+1][j], theBoard[i+2][j], theBoard[i+3][j]]
+                if not(1 in zone) :
+                    if zone.count(2) == 4:
+                        somme += (1000)
+                    else :
+                        somme += zone.count(2)
+                if not (2 in zone) :
+                    if zone.count(1) == 4:
+                        somme -= (1000)
+                    else :
+                        somme -= zone.count(1)
+        # lignes
+        for i in range(6):     #lignes
+            for j in range(9):  #colonnes
+                zone = [theBoard[i][j], theBoard[i][j+1], theBoard[i][j+2], theBoard[i][j+3]]
+                if not(1 in zone) :
+                    if zone.count(2) == 4:
+                        somme += (1000)
+                    else :
+                        somme += zone.count(2)
+                if not (2 in zone) :
+                    if zone.count(1) == 4:
+                        somme -= (1000)
+                    else :
+                        somme -= zone.count(1)
+        # diagonales haut-droites
+        for i in range(3):
+            for j in range(9):
+                zone = [theBoard[i][j+3], theBoard[i+1][j+2], theBoard[i+2][j+1], theBoard[i+3][j]]
+                if not(1 in zone) :
+                    if zone.count(2) == 4:
+                        somme += (1000)
+                    else :
+                        somme += zone.count(2)
+                if not (2 in zone) :
+                    if zone.count(1) == 4:
+                        somme -= (1000)
+                    else :
+                        somme -= zone.count(1)
+        # diagonales haut-gauches
+        for i in range(3):
+            for j in range(4):
+                zone = [theBoard[i+3][j+3], theBoard[i+2][j+2], theBoard[i+1][j+1], theBoard[i][j]]
+                if not(1 in zone) :
+                    if zone.count(2) == 4:
+                        somme += (1000)
+                    else :
+                        somme += zone.count(2)
+                if not (2 in zone) :
+                    if zone.count(1) == 4:
+                        somme -= (1000)
+                    else :
+                        somme -= zone.count(1)
+
+        return somme
+
 def minmax(board,alpha,beta, profondeur, isMaximazing,ligne,colonne,joueur):
     global compteur
     if(profondeur == 0 or checkWinningConditions(ligne,colonne,compteur,joueur)):
+        print(heuristique())
+        printBoard()
         return heuristique()
     
     if(isMaximazing):
@@ -101,7 +165,7 @@ def turnAI():
         if canPlay(colonne):
             ligne = getLastFreeCase(colonne)
             theBoard[ligne][colonne] = 2
-            score = minmax(theBoard,np.NINF,np.Inf, 1 ,False,ligne,colonne,1)
+            score = minmax(theBoard,np.NINF,np.Inf, 6 ,False,ligne,colonne,1)
             theBoard[ligne][colonne] = 0
             if score > bestScore:
                 bestScore = score
@@ -109,6 +173,7 @@ def turnAI():
     theBoard[move[0]][move[1]] = 2
     l=move[0]
     col=move[1]
+
 def parcours(ligne,colonne,Vx,Vy,joueur):
     cpt = 0   
     while True:
@@ -158,6 +223,7 @@ def checkWinningConditions(ligne,colonne,compteur,joueur):
        
     return winning
 
+    
     """
     # A améliorer, utiliser une seule fonction
     # Ligne -
@@ -353,7 +419,7 @@ def gameLoop():
         print("Choix 1 : Joueur contre Joueur")
         PvP()
     elif(gameChoice == "2"):
-        print("Choix 3 : Joueur contre IA")
+        print("Choix 2 : Joueur contre IA")
         PvIA()
   
 
