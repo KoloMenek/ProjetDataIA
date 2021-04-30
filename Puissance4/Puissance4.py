@@ -58,7 +58,6 @@ def heuristique():
                 heur -=1
             if theBoard[i+3][j] != 2 and theBoard[i+2][j+1] != 2 and theBoard[i+1][j+2] != 2 and theBoard[i][j+3] != 2:
                 heur -=1
-
     return heur
 
 def minmax(board,alpha,beta, profondeur, isMaximazing,ligne,colonne,joueur):
@@ -85,7 +84,7 @@ def minmax(board,alpha,beta, profondeur, isMaximazing,ligne,colonne,joueur):
             if canPlay(colonne):
                 ligne = getLastFreeCase(colonne)
                 theBoard[ligne][colonne] = 1
-                evaluate = minmax(theBoard,alpha,beta, profondeur-1 ,False,ligne,colonne,2)
+                evaluate = minmax(theBoard,alpha,beta, profondeur-1 ,True,ligne,colonne,2)
                 theBoard[ligne][colonne] = 0
                 minEvaluate = min(minEvaluate,evaluate)
                 beta = min(beta,evaluate)
@@ -95,19 +94,21 @@ def minmax(board,alpha,beta, profondeur, isMaximazing,ligne,colonne,joueur):
 
 def turnAI():
 	#AI to make its turn
+    global l,col
     move = (0,0)
     bestScore = np.NINF
     for colonne in np.arange(0,12):
         if canPlay(colonne):
             ligne = getLastFreeCase(colonne)
             theBoard[ligne][colonne] = 2
-            score = minmax(theBoard,np.NINF,np.Inf, 1 ,False,ligne,colonne,2)
+            score = minmax(theBoard,np.NINF,np.Inf, 2 ,False,ligne,colonne,1)
             theBoard[ligne][colonne] = 0
             if score > bestScore:
                 bestScore = score
                 move = (ligne,colonne)
     theBoard[move[0]][move[1]] = 2
-
+    l=move[0]
+    col=move[1]
 def parcours(ligne,colonne,Vx,Vy,joueur):
     cpt = 0   
     while True:
@@ -281,7 +282,7 @@ def PvP():
         else:
             joueur = 1
 def PvIA():
-    global compteur
+    global compteur,l,col
     # print("Qui commence ? (1 : Moi, 2 : IA)")
     playingFirst = False
     gameChoiceIA = None
@@ -317,7 +318,7 @@ def PvIA():
             # printBoard()
             turnAI()
             compteur += 1
-            gameNotFinished = checkWinningConditions(ligne, colonne, compteur,joueur)
+            gameNotFinished = checkWinningConditions(l, col, compteur,2)
 
 
         if gameNotFinished is True:
