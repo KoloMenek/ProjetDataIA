@@ -61,9 +61,73 @@ def heuristique():
                 heur -=1
     return heur
 
+def heuristiquebis():
+        '''Heuristique un peu plus complexe'''
+        somme = 0
+        # colonnes
+        for j in range(12):  #colonnes
+            for i in range(3):  #lignes
+                zone =[theBoard[i][j], theBoard[i+1][j], theBoard[i+2][j], theBoard[i+3][j]]
+                if not(1 in zone) :
+                    if zone.count(2) == 4:
+                        somme += (1000)
+                    else :
+                        somme += zone.count(2)
+                if not (2 in zone) :
+                    if zone.count(1) == 4:
+                        somme -= (1000)
+                    else :
+                        somme -= zone.count(1)
+        # lignes
+        for i in range(6):     #lignes
+            for j in range(9):  #colonnes
+                zone = [theBoard[i][j], theBoard[i][j+1], theBoard[i][j+2], theBoard[i][j+3]]
+                if not(1 in zone) :
+                    if zone.count(2) == 4:
+                        somme += (1000)
+                    else :
+                        somme += zone.count(2)
+                if not (2 in zone) :
+                    if zone.count(1) == 4:
+                        somme -= (1000)
+                    else :
+                        somme -= zone.count(1)
+        # diagonales haut-droites
+        for i in range(3):
+            for j in range(9):
+                zone = [theBoard[i][j+3], theBoard[i+1][j+2], theBoard[i+2][j+1], theBoard[i+3][j]]
+                if not(1 in zone) :
+                    if zone.count(2) == 4:
+                        somme += (1000)
+                    else :
+                        somme += zone.count(2)
+                if not (2 in zone) :
+                    if zone.count(1) == 4:
+                        somme -= (1000)
+                    else :
+                        somme -= zone.count(1)
+        # diagonales haut-gauches
+        for i in range(3):
+            for j in range(4):
+                zone = [theBoard[i+3][j+3], theBoard[i+2][j+2], theBoard[i+1][j+1], theBoard[i][j]]
+                if not(1 in zone) :
+                    if zone.count(2) == 4:
+                        somme += (1000)
+                    else :
+                        somme += zone.count(2)
+                if not (2 in zone) :
+                    if zone.count(1) == 4:
+                        somme -= (1000)
+                    else :
+                        somme -= zone.count(1)
+
+        return somme
+
 def minmax(board,alpha,beta, profondeur, isMaximazing,ligne,colonne,joueur):
     global compteur
     if(profondeur == 0 or checkWinningConditions(ligne,colonne,compteur,joueur)):
+        print(heuristique())
+        printBoard()
         return heuristique()
     
     if(isMaximazing):
@@ -102,7 +166,7 @@ def turnAI():
         if canPlay(colonne):
             ligne = getLastFreeCase(colonne)
             theBoard[ligne][colonne] = 2
-            score = minmax(theBoard,np.NINF,np.Inf, 1 ,False,ligne,colonne,1)
+            score = minmax(theBoard,np.NINF,np.Inf, 6 ,False,ligne,colonne,1)
             theBoard[ligne][colonne] = 0
             if score > bestScore:
                 bestScore = score
@@ -110,6 +174,7 @@ def turnAI():
     theBoard[move[0]][move[1]] = 2
     l=move[0]
     col=move[1]
+
 def parcours(ligne,colonne,Vx,Vy,joueur):
     cpt = 0   
     while True:
@@ -159,6 +224,93 @@ def checkWinningConditions(ligne,colonne,joueur):
        
     return winning
 
+<<<<<<< HEAD
+=======
+    
+    """
+    # A améliorer, utiliser une seule fonction
+    # Ligne -
+    cpt_ligne = 1
+    for i in range(colonne+1,nb_colonnes): # out of range
+        if theBoard[ligne][i] == joueur:
+            cpt_ligne+=1
+        else:
+            break
+    for i in range(colonne-1,-1,-1):
+        if theBoard[ligne][i] == joueur:
+            cpt_ligne+=1
+        else:
+            break
+    
+    # Colonne |
+    cpt_colonne = 1
+    for i in range(ligne+1,nb_lignes):
+        if theBoard[i][colonne] == joueur:
+            cpt_colonne+=1
+        else:
+            break
+    for i in range(ligne-1,-1,-1):
+        if theBoard[i][colonne] == joueur:
+            cpt_colonne+=1
+        else:
+            break   
+        
+    # Diagonale ascendante /
+    cpt_diagAsc = 1
+    cptLoopAsc_1 = 1
+    cptLoopAsc_2 = 1
+    for i in range(colonne+1,nb_colonnes):
+        # On dépasse le board (supérieur)
+        if(ligne-cptLoopAsc_1 < 0):
+            break
+        if theBoard[ligne-cptLoopAsc_1][i] == joueur:
+            cpt_diagAsc+=1
+        else:
+            break
+        cptLoopAsc_1+=1
+        
+    for i in range(colonne-1,-1,-1):
+        # On dépasse le board (inférieur)
+        if(ligne+cptLoopAsc_2 > nb_lignes-1):
+            break
+        if theBoard[ligne+cptLoopAsc_2][i] == joueur:
+            cpt_diagAsc+=1
+        else:
+            break   
+        cptLoopAsc_2+=1
+    
+    #diagonale descendante \ 
+    cpt_diagDesc = 1
+    cptLoopDesc_1 = 1
+    cptLoopDesc_2 = 1
+    for i in range(colonne+1,nb_colonnes):
+        # On dépasse le board (supérieur)
+        if(ligne+cptLoopDesc_1 > nb_lignes-1):
+            break
+        if theBoard[ligne+cptLoopDesc_1][i] == joueur:
+            cpt_diagDesc+=1
+        else:
+            break
+        cptLoopDesc_1+=1
+    for i in range(colonne-1,-1,-1):
+        # On dépasse le board (inférieur)
+        print(ligne+cptLoopDesc_2 )
+        if(ligne+cptLoopDesc_2 < 0):
+            break
+        if theBoard[ligne-cptLoopDesc_2][i] == joueur:
+            cpt_diagDesc+=1
+        else:
+            break  
+        cptLoopDesc_2+=1
+    #print("cpt_colonne:",cpt_colonne, "cpt_ligne:",cpt_ligne,"cpt_diagDesc:",cpt_diagDesc,'cpt_diagAsc:',cpt_diagAsc)
+    if cpt_colonne >= victory or cpt_ligne >= victory or cpt_diagAsc >= victory or cpt_diagDesc >= victory:
+        return True
+    else:
+        return False
+    """
+
+
+>>>>>>> origin/develop
 def PvP():
     joueur = 1
     compteur =1
@@ -271,7 +423,7 @@ def gameLoop():
         print("Choix 1 : Joueur contre Joueur")
         PvP()
     elif(gameChoice == "2"):
-        print("Choix 3 : Joueur contre IA")
+        print("Choix 2 : Joueur contre IA")
         PvIA()
   
 
