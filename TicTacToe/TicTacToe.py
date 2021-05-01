@@ -1,3 +1,5 @@
+import numpy as np
+
 theBoard = [
 	['-', '-', '-'],
 	['-', '-', '-'],
@@ -67,10 +69,10 @@ def gameState(theBoard, joueur):
 		gameNotFinished = True
 	elif not canPlay():
 		printBoard()
-		print(f"Game Over ! \nEgalité, personne a gagné !")
+		print("Game Over ! \nEgalité, personne a gagné !")
 		gameNotFinished = True
 	return gameNotFinished
-
+"""
 def minimax(board, isMaximazing):
 	result = checkWinner()
 	if result != None:
@@ -99,17 +101,45 @@ def minimax(board, isMaximazing):
 					board[i][j] = '-'
 					bestScore = min(score, bestScore)
 		return bestScore
+"""
+    
+def maxvalue(board):
+    result = checkWinner()
+    if result != None :
+        return scores[result]
+    evaluate = np.NINF
+    for i in range(0,3):
+        for j in range(0,3):
+            if board[i][j] == '-':
+                board[i][j] = 'O'
+                evaluate = max(evaluate,minvalue(board))
+                board[i][j] = '-'
+    return evaluate
+    
+def minvalue(board):
+    result = checkWinner()
+    if result != None:
+        return scores[result]
+    evaluate = np.Inf
+    for i in range(0,3):
+        for j in range(0,3):
+            if board[i][j] == '-':
+                board[i][j] = 'X'
+                evaluate = min(evaluate,maxvalue(board))
+                board[i][j] = '-'
+    return evaluate
+    
 
-def bestMove():
+def turnAI():
 	#AI to make its turn
 	move = (0,0)
-	bestScore = -999999
+	bestScore = np.NINF
 	for i in range(0,3):
 		for j in range(0,3):
 		#Is the spot available?
 			if theBoard[i][j] == '-':
 				theBoard[i][j] = 'O'
-				score = minimax(theBoard, False)
+				score = minvalue(theBoard)
 				theBoard[i][j] = '-'
 				if score > bestScore:
 					bestScore = score
@@ -170,7 +200,7 @@ def TicTacToe():
 		joueur = 'X'
 		compteur = 1
 		gameFinished = False
-
+    
 		while not gameFinished:
 			print(f"Tour {compteur} Joueur: {joueur}")
 			#printBoard()
@@ -196,7 +226,7 @@ def TicTacToe():
 							print("Position déjà prise")
 			else: # IA
 				printBoard()
-				bestMove()
+				turnAI()
 				gameFinished = gameState(theBoard,joueur)
 
 			if joueur == 'X':
