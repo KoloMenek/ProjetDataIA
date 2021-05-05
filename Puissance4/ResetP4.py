@@ -1,10 +1,10 @@
 """
-Created on Sun May  2 15:08:33 2021
 
 @author: VO Huu Toan Thierry
          MARUT Kamil
          PUKIVARAN Thanujan
 """
+# Initialisation, imports
 import numpy as np
 import time 
 nb_lignes = 6
@@ -12,7 +12,6 @@ nb_colonnes = 12
 compteur = 0
 negInfinity = np.NINF
 posInfinity = np.Inf
-# values = {0:'Vide', 1:'Bleu', 2: 'Rouge'}
 
 theBoard = [[0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0],
@@ -21,9 +20,28 @@ theBoard = [[0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0]]
 
+# Reset du plateau
+def reset():
+    for i in range(nb_lignes):
+        for j in range(nb_colonnes):
+            theBoard[i][j] = 0
 
+# Renvoie True si la colonne peut être jouée, False sinon
+# Utilisée pour le choix du joueur
+def canPlay(colonne):
+    return theBoard[0][colonne] == 0
+
+# Renvoie la derniere ligne, utilisée pour le choix du joueur
+def getLastFreeCase(colonne):
+    for i in range(5,-1,-1):
+        if theBoard[i][colonne] == 0:
+            return i
+    return -1
+
+# Affiche le plateau
 def printBoard():
-    affichage = "  ─   ─   ─   ─   ─   ─   ─   ─   ─   ─   ─   ─\n"
+    affichage = "  1   2   3   4   5   6   7   8   9   10  11  12\n"
+    affichage += "  ─   ─   ─   ─   ─   ─   ─   ─   ─   ─   ─   ─\n"
     for i in np.arange(nb_lignes):
         affichage += "| "
         for j in np.arange(nb_colonnes):
@@ -32,15 +50,8 @@ def printBoard():
     affichage += "  ─   ─   ─   ─   ─   ─   ─   ─   ─  ─  ─  ─  ─\n"
     print(affichage)
 
-def canPlay(colonne):
-    return theBoard[0][colonne] == 0
-
-def getLastFreeCase(colonne):
-    for i in range(5,-1,-1):
-        if theBoard[i][colonne] == 0:
-            return i
-    return -1
-
+# Parcourt un axe en fonction de Vx (colonne) et Vy (ligne)
+# Utilisé dans checkWinnerPlayer
 def parcours(ligne,colonne,Vx,Vy,joueur):
     cpt = 0   
     while True:
@@ -55,80 +66,82 @@ def parcours(ligne,colonne,Vx,Vy,joueur):
                 break
     return cpt
 
-# Le principe est qu'on vérifie le conformité de la pièce du joueur avec celle suivante
-# suivant l'axe, si on trouve une pièce adverse on s'arrete et on passe à l'autre axe, sinon on incrémente le compteur
+# Parcourt les axes selon la position de la pièce posée pour voir si le joueur a gagné
+# Utilisé dans le choix du joueur
 def checkWinnerPlayer(ligne,colonne,joueur):
     winning = False
-    if(compteur==42):
-        print("__TIE__")
-        winning = None
     victory = 4
     
     # Ligne -
     valeur = parcours(ligne,colonne,1,0,joueur) + parcours(ligne,colonne,-1,0,joueur) + 1 
     if(valeur >= victory):
-        #print("Ligne -")
         winning = True
     
     # Colonne |
     valeur = parcours(ligne,colonne,0,1,joueur) + parcours(ligne,colonne,0,-1,joueur) + 1
     if(valeur >= victory):
-        #print("Colonne |")
         winning = True
     
     # Diagonale ascendante /
     valeur = parcours(ligne,colonne,1,1,joueur) + parcours(ligne,colonne,-1,-1,joueur) + 1
     if(valeur >= victory):
-        #print("Diagonale ascendante /")
         winning = True
     
     # Diagonale descendante \
     valeur = parcours(ligne,colonne,-1,1,joueur) + parcours(ligne,colonne,1,-1,joueur) + 1
     if(valeur >= victory):
-        #print("Diagonale descendante \"")
         winning = True  
        
     return winning
 
+# Parcourt tout le tableau pour voir si quelqu'un a gagné
+# Utilisé dans l'algorithme minmax avec élagage alpha-beta
 def checkWinnerIA():
     winner = 0
-    for joueur in [2,1]:
+    for joueur in [2,1]: # Vérification pour les deux joueurs
         # Ligne -
         for i in range(6):
-            for j in range(9): # 4/9
+            for j in range(9):
                 if theBoard[i][j] == joueur and theBoard[i][j+1] == joueur and theBoard[i][j+2] == joueur and theBoard[i][j+3] == joueur:
                     winner = joueur
-                    break
-            if winner != 0:
-                break        
+ 
         
-        if winner != 0:
-            # Colonne |
-            for j in range(12): # 7/12
-                for i in range(3):
-                    if theBoard[i][j] == joueur and theBoard[i+1][j] == joueur and theBoard[i+2][j] == joueur and theBoard[i+3][j] == joueur:
-                        winner = joueur
-                        break
-                if winner != 0:
-                    break 
-                        
-        if winner != 0:
-            # Diagonale ascendante /et descendante \
+        # Colonne |
+        for j in range(12):
             for i in range(3):
-                for j in range(9): # 4/9
-                    if theBoard[i][j] == joueur and theBoard[i+1][j+1] == joueur and theBoard[i+2][j+2] == joueur and theBoard[i+3][j+3] == joueur:
-                        winner = joueur
-                        break
-                    if theBoard[i+3][j] == joueur and theBoard[i+2][j+1] == joueur and theBoard[i+1][j+2] == joueur and theBoard[i][j+3] == joueur:
-                        winner = joueur
-                        break
-                if winner != 0:
-                    break 
-        if winner != 0:
-            break 
+                if theBoard[i][j] == joueur and theBoard[i+1][j] == joueur and theBoard[i+2][j] == joueur and theBoard[i+3][j] == joueur:
+                    winner = joueur
+                    
+
+                    
+        # Diagonale ascendante / et descendante \
+        for i in range(3):
+            for j in range(9):
+                if theBoard[i][j] == joueur and theBoard[i+1][j+1] == joueur and theBoard[i+2][j+2] == joueur and theBoard[i+3][j+3] == joueur:
+                    winner = joueur
+                    
+                if theBoard[i+3][j] == joueur and theBoard[i+2][j+1] == joueur and theBoard[i+1][j+2] == joueur and theBoard[i][j+3] == joueur:
+                    winner = joueur
+                    
+        
     return winner
 
-# Cette heuristique va renvoyer toutes les possibilités possibles pour chacun.
+# Donne les cases possibles où l'on peut jouer
+def choices():
+    possibleChoices = []
+    for ligne in range (nb_lignes): # On parcourt tout le plateau
+        for colonne in range (nb_colonnes):
+            if theBoard[ligne][colonne] == 0:
+                if ligne == nb_lignes-1 : # Dernière ligne
+                    possibleChoices.append([ligne,colonne])
+                elif theBoard[ligne+1][colonne] !=0: # Autres lignes, si la ligne en dessous est "occupée"
+                    possibleChoices.append([ligne,colonne])             
+    return possibleChoices    
+    
+# Cette heuristique va renvoyer la différence entre :
+    # La somme des possibilités d'alignement pour l'IA (maximisation du score)
+    # La somme des possibilités d'alignement pour le joueur (minimisation du score)
+# On aura une evaluation donc sur la case choisie
 def heuristique():
     heur = 0
     # Teste toutes les possibilités en lignes
@@ -161,8 +174,12 @@ def heuristique():
                 heur -=1
     return heur
 
-
-
+# Cette heuristique va renvoyer la différence entre :
+    # La somme des possibilités d'alignement pour l'IA (maximisation du score)
+    # La somme des possibilités d'alignement pour le joueur (minimisation du score)   
+    # Avec cela s'ajoute le fait que s'il ya déjà un alignement de 4, la valuation aura beaucoup plus de poids
+    # Sinon on compte le nombre de pièces déjà présentes (pour un éventuel alignement)
+# On aura une evaluation plus précise que l'heuristique 1
 def heuristiquebis():
         '''Heuristique un peu plus complexe'''
         somme = 0
@@ -225,26 +242,25 @@ def heuristiquebis():
 
         return somme
 
-# Algorithme minmax
-
+# Algorithme minmax avec élagage alpha-beta
 def min_value(alpha,beta,profondeur):
-    gameState = checkWinnerIA()
+    gameState = checkWinnerIA() # Vérification si partie gagnée
     if gameState == 1:
         return negInfinity
     elif gameState == 2:
         return posInfinity
     else:         
         if profondeur == 0 :
-            return heuristiquebis()
+            return heuristique()
         evaluate= posInfinity
         for choice in choices():
                 theBoard[choice[0]][choice[1]] = 1
                 evaluate = min(evaluate,max_value(alpha,beta,profondeur-1))            
                 theBoard[choice[0]][choice[1]] = 0
-                if evaluate <= alpha:
-                    #print("Beta pruning")
+                if evaluate <= alpha: # On a trouvé une valeur plus petite que la valeur du noeud maximisant père (alpha), on élague
+                    #print("Elagage type beta")
                     return evaluate
-                beta = min(beta,evaluate)
+                beta = min(beta,evaluate) # On garde la plus petite des valeurs, qu'on transmets aux noeuds fils suivants
         return evaluate
 
 def max_value(alpha,beta,profondeur):
@@ -255,48 +271,42 @@ def max_value(alpha,beta,profondeur):
         return posInfinity
     else:        
         if profondeur == 0:
-            return heuristiquebis()
+            return heuristique()
         evaluate= negInfinity
         for choice in choices():
             theBoard[choice[0]][choice[1]] = 2
             evaluate = max(evaluate,min_value(alpha,beta,profondeur-1))            
             theBoard[choice[0]][choice[1]] = 0
-            if evaluate >= beta:
-                #print("Alpha pruning")
+            if evaluate >= beta: # On a trouvé une valeur plus grande que la valeur du noeud minimisant père (beta), on élague
+                #print("Elagage type alpha")
                 return evaluate
-            alpha = max(alpha,evaluate)
+            alpha = max(alpha,evaluate) # On garde la plus grande des valeurs, qu'on transmets aux noeuds fils suivants
         return evaluate    
 
 # Tour de l'IA 
 def playAI():   
-    bestEval = negInfinity
+    bestEval = negInfinity # Pire score pour l'IA
     move = (0,0)
     for choice in choices():
         theBoard[choice[0]][choice[1]] = 2
         evaluate = min_value(negInfinity,posInfinity,6)
-        print("Choice :",choice," & Evaluate :",evaluate)
+        #print("Choice :",choice," & Evaluate :",evaluate)
         theBoard[choice[0]][choice[1]] = 0
         if(evaluate > bestEval): # Si on a trouvé une meilleur evaluation, on change le mouvement 
             bestEval = evaluate
             move = (choice[0],choice[1])
+    if move == (0,0): # En cas de défaite...
+        print("L'IA s'avoue vaincu...")
+        return False
     print("L'IA a joué à la colonne :",move[1] + 1 )
     theBoard[move[0]][move[1]] = 2
+    return True
 
 
-def choices():
-    possibleChoices = []
-    for ligne in range (nb_lignes):
-        for colonne in range (nb_colonnes):
-            if theBoard[ligne][colonne] == 0:
-                if ligne == nb_lignes-1 : # Dernière ligne
-                    possibleChoices.append([ligne,colonne])
-                elif theBoard[ligne+1][colonne] !=0: # Autres lignes
-                    possibleChoices.append([ligne,colonne])             
-    return possibleChoices    
-    
-    
+# Boucle de jeu
 def gameLoop():
     global compteur
+    reset()
     joueur = None
     gameNotFinished = False
     choiceStart = False
@@ -312,7 +322,7 @@ def gameLoop():
     while not gameNotFinished:
         printBoard()    
         if joueur == 1:
-            print("Le joueur commence : \n")            
+            print("Tour du joueur \n")   
             hasPlayed = False
             while not hasPlayed:
                 userInput = None
@@ -332,24 +342,26 @@ def gameLoop():
                         gameNotFinished = checkWinnerPlayer(ligne,colonne,joueur)
                         hasPlayed = True
                     else:
-                        print("Il n'est pas possible de jouer là !")
+                        print("Il n'est pas possible de jouer là")
                 else:
-                    print("Case hors du plateau !")
+                    print("Case hors du plateau")
         else:
-            print("L'IA commence : \n")   
+            print("Tour de l'IA \n")   
             start_time = time.time()
-            playAI()
+            turnAI = playAI()
+            if(not turnAI):
+                break
             compteur +=1
             gameNotFinished = True if checkWinnerIA() == 2 else False
-            print("--- %s seconds ---" % (time.time() - start_time))
+            print("=== Temps de calcul : %s secondes ===" % (time.time() - start_time))
 
 
         if gameNotFinished is True:
             printBoard()
             print(f"Le joueur {joueur} gagne !")
             break
-        elif gameNotFinished is None:
-            print("Egalité...")
+        elif compteur == 42:
+            print("Limite de pièces atteinte, égalité...")
             break   
         if joueur == 1:
             joueur = 2
@@ -358,4 +370,9 @@ def gameLoop():
     
         
 if __name__ == "__main__":
-    gameLoop()
+    print("GL HF :)")
+    while True:
+        gameLoop()
+        playAgain = input("Merci d'avoir joué, voulez vous réessayer ? (O/N)")
+        if playAgain == "N":
+            break
