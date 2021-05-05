@@ -19,7 +19,7 @@ theBoard = [[0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0],
         [0,0,0,0,0,0,0,0,0,0,0,0]]
-
+# %%
 # Reset du plateau
 def reset():
     for i in range(nb_lignes):
@@ -137,14 +137,14 @@ def choices():
                 elif theBoard[ligne+1][colonne] !=0: # Autres lignes, si la ligne en dessous est "occupée"
                     possibleChoices.append([ligne,colonne])             
     return possibleChoices    
-    
+# %%    
 # Cette heuristique va renvoyer la différence entre :
     # La somme des possibilités d'alignement pour l'IA (maximisation du score)
     # La somme des possibilités d'alignement pour le joueur (minimisation du score)
 # On aura une evaluation donc sur la case choisie
 def heuristique():
     heur = 0
-    # Teste toutes les possibilités en lignes
+    # Ligne -
     for i in range(6):
         for j in range(9):
             if theBoard[i][j] != 1 and theBoard[i][j+1] != 1 and theBoard[i][j+2] != 1 and theBoard[i][j+3] != 1:
@@ -153,7 +153,7 @@ def heuristique():
                 heur -=1
 
 
-    # Teste toutes les possibilités en colonnes
+    # Colonne |
     for j in range(12):
         for i in range(3):
             if theBoard[i][j] != 1 and theBoard[i+1][j] != 1 and theBoard[i+2][j] != 1 and theBoard[i+3][j] != 1:
@@ -174,114 +174,104 @@ def heuristique():
                 heur -=1
     return heur
 
-# Cette heuristique va renvoyer la différence entre :
+# Cette heuristique un peu plus complexe va renvoyer la différence entre :
     # La somme des possibilités d'alignement pour l'IA (maximisation du score)
     # La somme des possibilités d'alignement pour le joueur (minimisation du score)   
     # Avec cela s'ajoute le fait que s'il ya déjà un alignement de 4, la valuation aura beaucoup plus de poids
-    # Sinon on compte le nombre de pièces déjà présentes (pour un éventuel alignement)
+    # Sinon on compte le nombre de pièces déjà présentes pour un éventuel alignement (pour les deux joueurs)
 # On aura une evaluation plus précise que l'heuristique 1
 def heuristiquebis():
-        '''Heuristique un peu plus complexe'''
-        somme = 0
-        # colonnes
-        for j in range(12):  #colonnes
-            for i in range(3):  #lignes
-                zone =[theBoard[i][j], theBoard[i+1][j], theBoard[i+2][j], theBoard[i+3][j]]
-                if not(1 in zone) :
-                    if zone.count(2) == 4:
-                        somme += (1000)
-                    else :
-                        somme += zone.count(2)
-                if not (2 in zone) :
-                    if zone.count(1) == 4:
-                        somme -= (1000)
-                    else :
-                        somme -= zone.count(1)
-        # lignes
-        for i in range(6):     #lignes
-            for j in range(9):  #colonnes
-                zone = [theBoard[i][j], theBoard[i][j+1], theBoard[i][j+2], theBoard[i][j+3]]
-                if not(1 in zone) :
-                    if zone.count(2) == 4:
-                        somme += (1000)
-                    else :
-                        somme += zone.count(2)
-                if not (2 in zone) :
-                    if zone.count(1) == 4:
-                        somme -= (1000)
-                    else :
-                        somme -= zone.count(1)
-        # diagonales haut-droites
-        for i in range(3):
-            for j in range(4):
-                zone = [theBoard[i][j+3], theBoard[i+1][j+2], theBoard[i+2][j+1], theBoard[i+3][j]]
-                if not(1 in zone) :
-                    if zone.count(2) == 4:
-                        somme += (1000)
-                    else :
-                        somme += zone.count(2)
-                if not (2 in zone) :
-                    if zone.count(1) == 4:
-                        somme -= (1000)
-                    else :
-                        somme -= zone.count(1)
-        # diagonales haut-gauches
-        for i in range(3):
-            for j in range(4):
-                zone = [theBoard[i+3][j+3], theBoard[i+2][j+2], theBoard[i+1][j+1], theBoard[i][j]]
-                if not(1 in zone) :
-                    if zone.count(2) == 4:
-                        somme += (1000)
-                    else :
-                        somme += zone.count(2)
-                if not (2 in zone) :
-                    if zone.count(1) == 4:
-                        somme -= (1000)
-                    else :
-                        somme -= zone.count(1)
+    heur = 0       
+    # Ligne -
+    for i in range(6):
+        for j in range(9): 
+            ligne = [theBoard[i][j], theBoard[i][j+1], theBoard[i][j+2], theBoard[i][j+3]]
+            if not(1 in ligne) :
+                if ligne.count(2) == 4:
+                    heur += (1000)
+                else :
+                    heur += ligne.count(2)
+            if not (2 in ligne) :
+                if ligne.count(1) == 4:
+                    heur -= (1000)
+                else :
+                    heur -= ligne.count(1)
+    # Colonne |
+    for j in range(12):
+        for i in range(3):  
+            colonne =[theBoard[i][j], theBoard[i+1][j], theBoard[i+2][j], theBoard[i+3][j]]
+            if not(1 in colonne) :
+                if colonne.count(2) == 4:
+                    heur += (1000)
+                else :
+                    heur += colonne.count(2)
+            if not (2 in colonne) :
+                if colonne.count(1) == 4:
+                    heur -= (1000)
+                else :
+                    heur -= colonne.count(1)
 
-        return somme
+    # Diagonale ascendante /
+    for i in range(3):
+        for j in range(4):
+            diagA = [theBoard[i][j+3], theBoard[i+1][j+2], theBoard[i+2][j+1], theBoard[i+3][j]]
+            if not(1 in diagA) :
+                if diagA.count(2) == 4:
+                    heur += (1000)
+                else :
+                    heur += diagA.count(2)
+            if not (2 in diagA) :
+                if diagA.count(1) == 4:
+                    heur -= (1000)
+                else :
+                    heur -= diagA.count(1)
+    # Diagonale descendante \
+    for i in range(3):
+        for j in range(4):
+            diagD = [theBoard[i+3][j+3], theBoard[i+2][j+2], theBoard[i+1][j+1], theBoard[i][j]]
+            if not(1 in diagD) :
+                if diagD.count(2) == 4:
+                    heur += (1000)
+                else :
+                    heur += diagD.count(2)
+            if not (2 in diagD) :
+                if diagD.count(1) == 4:
+                    heur -= (1000)
+                else :
+                    heur -= diagD.count(1)
+
+    return heur
 
 # Algorithme minmax avec élagage alpha-beta
 def min_value(alpha,beta,profondeur):
-    gameState = checkWinnerIA() # Vérification si partie gagnée
-    if gameState == 1:
-        return negInfinity
-    elif gameState == 2:
-        return posInfinity
-    else:         
-        if profondeur == 0 :
-            return heuristique()
-        evaluate= posInfinity
-        for choice in choices():
-                theBoard[choice[0]][choice[1]] = 1
-                evaluate = min(evaluate,max_value(alpha,beta,profondeur-1))            
-                theBoard[choice[0]][choice[1]] = 0
-                if evaluate <= alpha: # On a trouvé une valeur plus petite que la valeur du noeud maximisant père (alpha), on élague
-                    #print("Elagage type beta")
-                    return evaluate
-                beta = min(beta,evaluate) # On garde la plus petite des valeurs, qu'on transmets aux noeuds fils suivants
-        return evaluate
+    if profondeur == 0:
+        return heuristiquebis()
+    evaluate= posInfinity
+    for choice in choices():
+            theBoard[choice[0]][choice[1]] = 1
+            evaluate = min(evaluate,max_value(alpha,beta,profondeur-1))            
+            theBoard[choice[0]][choice[1]] = 0
+            if evaluate <= alpha: # On a trouvé une valeur plus petite que la valeur du noeud maximisant père (alpha), on élague
+                #print("Elagage type beta")
+                return evaluate
+            beta = min(beta,evaluate) # On garde la plus petite des valeurs, qu'on transmets aux noeuds fils suivants
+    return evaluate
 
 def max_value(alpha,beta,profondeur):
-    gameState = checkWinnerIA()
-    if gameState == 1:
-        return negInfinity
-    elif gameState == 2:
-        return posInfinity
-    else:        
-        if profondeur == 0:
-            return heuristique()
-        evaluate= negInfinity
-        for choice in choices():
-            theBoard[choice[0]][choice[1]] = 2
-            evaluate = max(evaluate,min_value(alpha,beta,profondeur-1))            
-            theBoard[choice[0]][choice[1]] = 0
-            if evaluate >= beta: # On a trouvé une valeur plus grande que la valeur du noeud minimisant père (beta), on élague
-                #print("Elagage type alpha")
-                return evaluate
-            alpha = max(alpha,evaluate) # On garde la plus grande des valeurs, qu'on transmets aux noeuds fils suivants
-        return evaluate    
+    if profondeur == 0:
+        return heuristiquebis()
+    evaluate= negInfinity
+    for choice in choices():
+        theBoard[choice[0]][choice[1]] = 2
+        evaluate = max(evaluate,min_value(alpha,beta,profondeur-1))            
+        theBoard[choice[0]][choice[1]] = 0
+        if evaluate >= beta: # On a trouvé une valeur plus grande que la valeur du noeud minimisant père (beta), on élague
+            #print("Elagage type alpha")
+            return evaluate
+        alpha = max(alpha,evaluate) # On garde la plus grande des valeurs, qu'on transmets aux noeuds fils suivants
+    return evaluate    
+
+# %%
 
 # Tour de l'IA 
 def playAI():   
@@ -289,8 +279,8 @@ def playAI():
     move = (0,0)
     for choice in choices():
         theBoard[choice[0]][choice[1]] = 2
-        evaluate = min_value(negInfinity,posInfinity,6)
-        #print("Choice :",choice," & Evaluate :",evaluate)
+        evaluate = min_value(negInfinity,posInfinity,6) # On change ici la profondeur, le nombre de coups simulés par l'IA
+        print("Choice :",choice," & Evaluate :",evaluate)
         theBoard[choice[0]][choice[1]] = 0
         if(evaluate > bestEval): # Si on a trouvé une meilleur evaluation, on change le mouvement 
             bestEval = evaluate
@@ -302,7 +292,7 @@ def playAI():
     theBoard[move[0]][move[1]] = 2
     return True
 
-
+# %%
 # Boucle de jeu
 def gameLoop():
     global compteur
