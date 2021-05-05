@@ -29,6 +29,78 @@ def getLastFreeCase(colonne):
     return -1
 
 
+def test2():
+    align4_2 = checkForStreak(2,4)
+    align3_2 = checkForStreak(2,3)
+    align2_2 = checkForStreak(2,2)
+    align4_1 = checkForStreak(1,4)
+    align3_1 = checkForStreak(1,3)
+    align2_1 = checkForStreak(1,2)
+    return (align4_2 * 10 + align3_2 * 5 + align2_2 * 2) - (align4_1 * 10 + align3_1 * 5 + align2_1 * 2)    
+
+def checkForStreak(joueur, streak):
+    count = 0
+    for i in range(nb_lignes):
+        for j in range(nb_colonnes):
+            if theBoard[i][j] == 0:
+                count += parcoursHeur2(i, j, 1,0, streak,joueur) + parcoursHeur2(i, j,-1,0, streak,joueur)
+                count += parcoursHeur2(i, j, 0,1, streak,joueur)+ parcoursHeur2(i, j,0,-1, streak,joueur)
+                count += parcoursHeur2(i, j, 1,1, streak,joueur) + parcoursHeur2(i, j,-1,-1, streak,joueur)
+                count += parcoursHeur2(i, j, -1,1, streak,joueur) + parcoursHeur2(i, j, 1,-1, streak,joueur)
+
+    return count
+def parcoursHeur2(ligne,colonne,Vx,Vy,streak,joueur):
+    cpt = 0
+    while True:
+        if((ligne > nb_lignes-1 or ligne < 0) or (colonne > nb_colonnes-1 or colonne < 0)):
+            cpt = 0
+            break
+        else:
+            if(theBoard[ligne][colonne] == joueur):
+                cpt+=1
+            else:
+                break
+        ligne+=Vy
+        colonne+=Vx
+    if(cpt < streak):
+        cpt= 0
+    return cpt 
+   
+def test():
+    valeur = 0
+
+    for ligne in range(nb_lignes):
+        for colonne in range(nb_colonnes):         
+            # Ligne - 
+            valeur += parcoursHeur(ligne,colonne,1,0) + parcoursHeur(ligne,colonne,-1,0)            
+            # Colonne |
+            valeur += parcoursHeur(ligne,colonne,0,1) + parcoursHeur(ligne,colonne,0,-1)                 
+            # Diagonale ascendante /
+            valeur += parcoursHeur(ligne,colonne,1,1) + parcoursHeur(ligne,colonne,-1,-1)                   
+            # Diagonale descendante \
+            valeur += parcoursHeur(ligne,colonne,-1,1) + parcoursHeur(ligne,colonne,1,-1)  
+        
+    return valeur
+    
+def parcoursHeur(ligne,colonne,Vx,Vy):
+    cpt = 1
+    alignement = 4
+    while alignement != 0 and cpt != 0:
+
+        if((ligne > nb_lignes-1 or ligne < 0) or (colonne > nb_colonnes-1 or colonne < 0)):
+            cpt = 0
+        else:
+            if(theBoard[ligne][colonne] == 2):
+                cpt*=1
+            elif(theBoard[ligne][colonne] == 0):
+                cpt*=0.5
+            else:
+                cpt*=0
+        ligne+=Vy
+        colonne+=Vx
+        alignement-=1
+    return cpt    
+
 def heuristique():
     heur = 0
     #teste toutes les possibilités en lignes
@@ -126,16 +198,14 @@ def heuristiquebis():
 def minmax(board,alpha,beta, profondeur, isMaximazing,ligne,colonne,joueur):
     global compteur
     if(profondeur == 0 or checkWinningConditions(ligne,colonne,compteur,joueur)):
-        print(heuristique())
-        printBoard()
-        return heuristique()
+        return heuristiquebis()
     
-    if(isMaximazing):
+    if(isMaximazing): # Max
         maxEvaluate = np.NINF
         for colonne in np.arange(0,12):
             if canPlay(colonne):
                 ligne = getLastFreeCase(colonne)
-                theBoard[ligne][colonne] = 2
+                theBoard[ligne][colonne] = joueur
                 evaluate = minmax(theBoard,alpha,beta, profondeur-1 ,False,ligne,colonne,1)
                 theBoard[ligne][colonne] = 0
                 maxEvaluate = max(maxEvaluate,evaluate)
@@ -143,12 +213,12 @@ def minmax(board,alpha,beta, profondeur, isMaximazing,ligne,colonne,joueur):
                 if beta <= alpha:
                     break
         return maxEvaluate
-    else:
+    else: # Min
         minEvaluate = np.Inf
         for colonne in np.arange(0,12):
             if canPlay(colonne):
                 ligne = getLastFreeCase(colonne)
-                theBoard[ligne][colonne] = 1
+                theBoard[ligne][colonne] = joueur
                 evaluate = minmax(theBoard,alpha,beta, profondeur-1 ,True,ligne,colonne,2)
                 theBoard[ligne][colonne] = 0
                 minEvaluate = min(minEvaluate,evaluate)
@@ -156,6 +226,8 @@ def minmax(board,alpha,beta, profondeur, isMaximazing,ligne,colonne,joueur):
                 if beta <= alpha:
                     break            
         return minEvaluate
+
+
 
 def turnAI():
 	#AI to make its turn
@@ -166,7 +238,8 @@ def turnAI():
         if canPlay(colonne):
             ligne = getLastFreeCase(colonne)
             theBoard[ligne][colonne] = 2
-            score = minmax(theBoard,np.NINF,np.Inf, 6 ,False,ligne,colonne,1)
+            score = alphabetasearch(theBoard,ligne,colonne)
+            #score = minmax(theBoard,np.NINF,np.Inf, 2 ,False,ligne,colonne,1)
             theBoard[ligne][colonne] = 0
             if score > bestScore:
                 bestScore = score
@@ -174,6 +247,76 @@ def turnAI():
     theBoard[move[0]][move[1]] = 2
     l=move[0]
     col=move[1]
+
+def terminalState(board):
+    terminal = False
+    #teste toutes les possibilités en lignes
+    for i in range(6):
+        for j in range(9):
+            if theBoard[i][j] == 1 and theBoard[i][j+1] == 1 and theBoard[i][j+2] == 1 and theBoard[i][j+3] == 1:
+                terminal = True
+            if theBoard[i][j] == 2 and theBoard[i][j+1] == 2 and theBoard[i][j+2] == 2 and theBoard[i][j+3] == 2:
+                terminal = True
+
+
+    #teste toutes les possibilités en colonnes
+    for j in range(12):
+        for i in range(3):
+            if theBoard[i][j] == 1 and theBoard[i+1][j] == 1 and theBoard[i+2][j] == 1 and theBoard[i+3][j] == 1:
+                terminal = True
+            if theBoard[i][j] == 2 and theBoard[i+1][j] == 2 and theBoard[i+2][j] == 2 and theBoard[i+3][j] == 2:
+                terminal = True
+
+    #teste toutes les possibilités en diagonales montantes / et descendantes \
+    for i in range(3):
+        for j in range(9):
+            if theBoard[i][j] == 1 and theBoard[i+1][j+1] == 1 and theBoard[i+2][j+2] == 1 and theBoard[i+3][j+3] == 1:
+                terminal = True
+            if theBoard[i+3][j] == 1 and theBoard[i+2][j+1] == 1 and theBoard[i+1][j+2] == 1 and theBoard[i][j+3] == 1:
+                terminal = True
+            if theBoard[i][j] == 2 and theBoard[i+1][j+1] == 2 and theBoard[i+2][j+2] == 2 and theBoard[i+3][j+3] == 2:
+                terminal = True
+            if theBoard[i+3][j] == 2 and theBoard[i+2][j+1] == 2 and theBoard[i+1][j+2] == 2 and theBoard[i][j+3] == 2:
+                terminal = True
+    return terminal  
+
+
+def maxvalue(board,alpha,beta,profondeur,ligne,colonne,joueur):
+    global compteur
+    if(profondeur == 0 or checkWinningConditions(ligne,colonne,compteur,joueur)):
+        return test2()
+    evaluate = np.NINF
+    for colonne in np.arange(0,12):
+        if canPlay(colonne):
+            ligne = getLastFreeCase(colonne)
+            theBoard[ligne][colonne] = joueur
+            evaluate = max(evaluate,minvalue(theBoard,alpha,beta, profondeur-1,ligne,colonne,1))
+            theBoard[ligne][colonne] = 0
+            if(evaluate>=beta):
+                return evaluate
+            alpha = max(alpha,evaluate)
+    return evaluate
+    
+def minvalue(board,alpha,beta,profondeur,ligne,colonne,joueur):
+    if(profondeur == 0 or checkWinningConditions(ligne,colonne,compteur,joueur)):
+        return test2()
+    evaluate = np.Inf
+    for colonne in np.arange(0,12):
+        if canPlay(colonne):
+            ligne = getLastFreeCase(colonne)
+            theBoard[ligne][colonne] = joueur
+            evaluate = min(evaluate,maxvalue(theBoard,alpha,beta, profondeur-1,ligne,colonne,2))
+            theBoard[ligne][colonne] = 0
+            if(evaluate <= alpha):
+                return evaluate
+            beta = min(beta,evaluate)          
+    return evaluate
+   
+
+def alphabetasearch(board,ligne,colonne):
+    v = minvalue(board,np.NINF,np.Inf,4,ligne,colonne,2)
+    return v
+
 
 def parcours(ligne,colonne,Vx,Vy,joueur):
     cpt = 0   
@@ -201,25 +344,25 @@ def checkWinningConditions(ligne,colonne,joueur):
     # Ligne -
     valeur = parcours(ligne,colonne,1,0,joueur) + parcours(ligne,colonne,-1,0,joueur) + 1 
     if(valeur >= victory):
-        print("Ligne -")
+        #print("Ligne -")
         winning = True
     
     # Colonne |
     valeur = parcours(ligne,colonne,0,1,joueur) + parcours(ligne,colonne,0,-1,joueur) + 1
     if(valeur >= victory):
-        print("Colonne |")
+        #print("Colonne |")
         winning = True
     
     # Diagonale ascendante /
     valeur = parcours(ligne,colonne,1,1,joueur) + parcours(ligne,colonne,-1,-1,joueur) + 1
     if(valeur >= victory):
-        print("Diagonale ascendante /")
+        #print("Diagonale ascendante /")
         winning = True
     
     # Diagonale descendante \
     valeur = parcours(ligne,colonne,-1,1,joueur) + parcours(ligne,colonne,1,-1,joueur) + 1
     if(valeur >= victory):
-        print("Diagonale descendante \"")
+        #print("Diagonale descendante \"")
         winning = True  
        
     return winning
@@ -353,11 +496,10 @@ def PvP():
             joueur = 1
 def PvIA():
     global compteur,l,col
-    # print("Qui commence ? (1 : Moi, 2 : IA)")
     playingFirst = False
     gameChoiceIA = None
     while not playingFirst:
-        gameChoiceIA = input("Qui commence ? (1 : Moi, 2 : IA)")
+        gameChoiceIA = input("Qui commence ? (1 : Moi, 2 : IA):\n")
         if gameChoiceIA in ["1","2"]:
             playingFirst = True
         else:
@@ -388,7 +530,7 @@ def PvIA():
             # printBoard()
             turnAI()
             compteur += 1
-            gameNotFinished = checkWinningConditions(l, col, compteur,2)
+            gameNotFinished = checkWinningConditions(l, col, compteur,joueur)
 
 
         if gameNotFinished is True:

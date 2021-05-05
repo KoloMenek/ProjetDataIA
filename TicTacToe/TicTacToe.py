@@ -1,10 +1,11 @@
+import numpy as np
+
 theBoard = [
 	['-', '-', '-'],
 	['-', '-', '-'],
 	['-', '-', '-']
 ]
 
-boardStates = []
 scores = {
 	'X': -1,
 	'O': 1,
@@ -67,10 +68,10 @@ def gameState(theBoard, joueur):
 		gameNotFinished = True
 	elif not canPlay():
 		printBoard()
-		print(f"Game Over ! \nEgalité, personne a gagné !")
+		print("Game Over ! \nEgalité, personne a gagné !")
 		gameNotFinished = True
 	return gameNotFinished
-
+"""
 def minimax(board, isMaximazing):
 	result = checkWinner()
 	if result != None:
@@ -99,17 +100,45 @@ def minimax(board, isMaximazing):
 					board[i][j] = '-'
 					bestScore = min(score, bestScore)
 		return bestScore
+"""
+    
+def maxvalue(board):
+    result = checkWinner()
+    if result != None :
+        return scores[result]
+    evaluate = np.NINF
+    for i in range(0,3):
+        for j in range(0,3):
+            if board[i][j] == '-':
+                board[i][j] = 'O'
+                evaluate = max(evaluate,minvalue(board))
+                board[i][j] = '-'
+    return evaluate
+    
+def minvalue(board):
+    result = checkWinner()
+    if result != None:
+        return scores[result]
+    evaluate = np.Inf
+    for i in range(0,3):
+        for j in range(0,3):
+            if board[i][j] == '-':
+                board[i][j] = 'X'
+                evaluate = min(evaluate,maxvalue(board))
+                board[i][j] = '-'
+    return evaluate
+    
 
-def bestMove():
+def turnAI():
 	#AI to make its turn
 	move = (0,0)
-	bestScore = -999999
+	bestScore = np.NINF
 	for i in range(0,3):
 		for j in range(0,3):
 		#Is the spot available?
 			if theBoard[i][j] == '-':
 				theBoard[i][j] = 'O'
-				score = minimax(theBoard, False)
+				score = minvalue(theBoard)
 				theBoard[i][j] = '-'
 				if score > bestScore:
 					bestScore = score
@@ -170,15 +199,14 @@ def TicTacToe():
 		joueur = 'X'
 		compteur = 1
 		gameFinished = False
-
+    
 		while not gameFinished:
 			print(f"Tour {compteur} Joueur: {joueur}")
-			#printBoard()
 
-			isPositionOkay = True
+			isPositionOkay = False
 
 			if(joueur == 'X'): # Joueur
-				while isPositionOkay:
+				while not isPositionOkay:
 					printBoard()
 					userInput = input("Veuillez selectionner une position i,j (entre 1 et 3) pour valider votre tour !\n")
 					if ',' in userInput:
@@ -187,8 +215,8 @@ def TicTacToe():
 						if moveI in [1,2,3] and moveJ in [1,2,3]:
 							moveI, moveJ = moveI -1, moveJ -1
 							if theBoard[moveI][moveJ] == '-':
-								isPositionOkay = False
-						if(not isPositionOkay):
+								isPositionOkay = True
+						if isPositionOkay:
 							theBoard[moveI][moveJ] = joueur
 							compteur += 1
 							gameFinished = gameState(theBoard,joueur)
@@ -196,7 +224,7 @@ def TicTacToe():
 							print("Position déjà prise")
 			else: # IA
 				printBoard()
-				bestMove()
+				turnAI()
 				gameFinished = gameState(theBoard,joueur)
 
 			if joueur == 'X':
