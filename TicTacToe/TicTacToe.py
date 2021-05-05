@@ -6,7 +6,6 @@ theBoard = [
 	['-', '-', '-']
 ]
 
-boardStates = []
 scores = {
 	'X': -1,
 	'O': 1,
@@ -203,12 +202,11 @@ def TicTacToe():
     
 		while not gameFinished:
 			print(f"Tour {compteur} Joueur: {joueur}")
-			#printBoard()
 
-			isPositionOkay = True
+			isPositionOkay = False
 
 			if(joueur == 'X'): # Joueur
-				while isPositionOkay:
+				while not isPositionOkay:
 					printBoard()
 					userInput = input("Veuillez selectionner une position i,j (entre 1 et 3) pour valider votre tour !\n")
 					if ',' in userInput:
@@ -217,8 +215,8 @@ def TicTacToe():
 						if moveI in [1,2,3] and moveJ in [1,2,3]:
 							moveI, moveJ = moveI -1, moveJ -1
 							if theBoard[moveI][moveJ] == '-':
-								isPositionOkay = False
-						if(not isPositionOkay):
+								isPositionOkay = True
+						if isPositionOkay:
 							theBoard[moveI][moveJ] = joueur
 							compteur += 1
 							gameFinished = gameState(theBoard,joueur)
