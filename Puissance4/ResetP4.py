@@ -297,6 +297,7 @@ def playAI():
 def gameLoop():
     global compteur
     reset()
+    timeAI = 0
     joueur = None
     gameNotFinished = False
     choiceStart = False
@@ -336,22 +337,24 @@ def gameLoop():
                 else:
                     print("Case hors du plateau")
         else:
-            print("Tour de l'IA \n")   
+            print("L'IA commence : \n")   
             start_time = time.time()
-            turnAI = playAI()
-            if(not turnAI):
-                break
+            playAI()
             compteur +=1
             gameNotFinished = True if checkWinnerIA() == 2 else False
-            print("=== Temps de calcul : %s secondes ===" % (time.time() - start_time))
-
+            turnTime = time.time() - start_time
+            print("--- %s seconds ---" % turnTime )
+            timeAI += turnTime
+            print(gameNotFinished)
 
         if gameNotFinished is True:
             printBoard()
             print(f"Le joueur {joueur} gagne !")
+            print(f"Temps moyen par coup : {timeAI/compteur} sec")
             break
-        elif compteur == 42:
-            print("Limite de pièces atteinte, égalité...")
+        elif gameNotFinished is None:
+            print("Egalité...")
+            print(f"Temps moyen par coup : {timeAI/compteur} sec")
             break   
         if joueur == 1:
             joueur = 2
