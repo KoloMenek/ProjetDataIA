@@ -9,6 +9,7 @@ import numpy as np
 import time 
 nb_lignes = 6
 nb_colonnes = 12
+depth = 5
 compteur = 0
 negInfinity = np.NINF
 posInfinity = np.Inf
@@ -213,7 +214,7 @@ def heuristiquebis():
 
     # Diagonale ascendante /
     for i in range(3):
-        for j in range(4):
+        for j in range(9):
             diagA = [theBoard[i][j+3], theBoard[i+1][j+2], theBoard[i+2][j+1], theBoard[i+3][j]]
             if not(1 in diagA) :
                 if diagA.count(2) == 4:
@@ -227,7 +228,7 @@ def heuristiquebis():
                     heur -= diagA.count(1)
     # Diagonale descendante \
     for i in range(3):
-        for j in range(4):
+        for j in range(9):
             diagD = [theBoard[i+3][j+3], theBoard[i+2][j+2], theBoard[i+1][j+1], theBoard[i][j]]
             if not(1 in diagD) :
                 if diagD.count(2) == 4:
@@ -279,7 +280,7 @@ def playAI():
     move = (0,0)
     for choice in choices():
         theBoard[choice[0]][choice[1]] = 2
-        evaluate = min_value(negInfinity,posInfinity,6) # On change ici la profondeur, le nombre de coups simulés par l'IA
+        evaluate = min_value(negInfinity,posInfinity,depth) # On change ici la profondeur, le nombre de coups simulés par l'IA
         print("Choice :",choice," & Evaluate :",evaluate)
         theBoard[choice[0]][choice[1]] = 0
         if(evaluate > bestEval): # Si on a trouvé une meilleur evaluation, on change le mouvement 
@@ -298,6 +299,7 @@ def gameLoop():
     global compteur
     reset()
     timeAI = 0
+    toursIA = 0
     joueur = None
     gameNotFinished = False
     choiceStart = False
@@ -341,6 +343,7 @@ def gameLoop():
             start_time = time.time()
             playAI()
             compteur +=1
+            toursIA += 1
             gameNotFinished = True if checkWinnerIA() == 2 else False
             turnTime = time.time() - start_time
             print("--- %s seconds ---" % turnTime )
@@ -350,11 +353,11 @@ def gameLoop():
         if gameNotFinished is True:
             printBoard()
             print(f"Le joueur {joueur} gagne !")
-            print(f"Temps moyen par coup : {timeAI/compteur} sec")
+            print(f"Temps moyen par coup : {timeAI/toursIA} sec")
             break
         elif gameNotFinished is None:
             print("Egalité...")
-            print(f"Temps moyen par coup : {timeAI/compteur} sec")
+            print(f"Temps moyen par coup : {timeAI/toursIA} sec")
             break   
         if joueur == 1:
             joueur = 2
@@ -367,5 +370,5 @@ if __name__ == "__main__":
     while True:
         gameLoop()
         playAgain = input("Merci d'avoir joué, voulez vous réessayer ? (O/N)")
-        if playAgain == "N":
+        if playAgain.upper() == "N":
             break
